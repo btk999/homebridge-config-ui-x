@@ -12,7 +12,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
   styleUrls: ['./homebridge-google-smarthome.component.scss'],
 })
 export class HomebridgeGoogleSmarthomeComponent implements OnInit, OnDestroy {
-  private linkDomain = 'https://homebridge-gsh.iot.oz.nu';
+  private linkDomain = 'https://gsh.dueselder.net';
   private linkUrl = this.linkDomain + '/link-account';
   private popup;
   private originCheckInterval;
