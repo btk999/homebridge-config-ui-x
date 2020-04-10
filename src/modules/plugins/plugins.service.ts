@@ -31,7 +31,6 @@ export class PluginsService {
   // misc schemas
   private miscSchemas = {
     'homebridge-tplink-smarthome': path.join(process.env.UIX_BASE_PATH, 'misc-schemas', 'homebridge-tplink-smarthome.json'),
-    'homebridge-platform-wemo': path.join(process.env.UIX_BASE_PATH, 'misc-schemas', 'homebridge-platform-wemo.json'),
   };
 
   // setup http client with default options
@@ -103,7 +102,7 @@ export class PluginsService {
     }));
 
     this.installedPlugins = plugins;
-    return _.orderBy(plugins, ['updateAvailable', 'name'], ['desc', 'asc']);
+    return _.orderBy(plugins, [(resultItem) => { return resultItem.name === this.configService.name; }, 'updateAvailable', 'name'], ['desc', 'desc', 'asc']);
   }
 
   /**

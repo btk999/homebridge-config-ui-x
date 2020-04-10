@@ -4,9 +4,23 @@ All notable changes to this project will be documented in this file. This projec
 
 ## NEXT
 
+## Other Changes
+
+* **i18n:** Improvements to Polish language translations ([#608](https://github.com/oznu/homebridge-config-ui-x/pull/608))
+* **i18n:** Improvements to Russian language translations ([#609](https://github.com/oznu/homebridge-config-ui-x/pull/609))
+
+## 4.14.0 (2020-04-08)
+
+### Notable Changes
+
+* **Config Editor:** The config editor will now automatically correct some common JSON syntax errors on save such as removing trailing commas at the end of arrays and objects, removing comments, ensuring keys are quoted, and ensuring strings are quoted with double quotes instead of single quotes
+
 ### Other Changes
 
 * **Linux:** Users are now prompted for confirmation before shutting down or restarting the host server
+* **hb-service:** Linux only: systemd will now really ensure the network is online before starting Homebridge ([#605](https://github.com/oznu/homebridge-config-ui-x/pull/605))
+* **i18n:** Improvements to German language translations ([#599](https://github.com/oznu/homebridge-config-ui-x/pull/599))
+* Updated npm dependencies
 
 ### Bug Fixes
 
