@@ -14,9 +14,12 @@ export interface HomebridgePlugin {
   links?: {
     npm?: string;
     homepage?: string;
-    bugs?: string;
   };
   author?: string;
+  engines?: {
+    homebridge?: string;
+    node?: string;
+  }
 }
 
 export interface IPackageJson {
@@ -29,6 +32,7 @@ export interface IPackageJson {
   bugs?: string | { email?: string, url?: string };
   license?: string;
   author?: string | INpmPerson;
+  maintainers?: INpmPerson[];
   contributors?: string[] | INpmPerson[];
   files?: string[];
   main?: string;
@@ -93,10 +97,10 @@ export interface INpmRegistryModule {
   _rev: string;
   name: string;
   'dist-tags': {
+    latest: string;
     [key: string]: string;
   },
   versions: {
-    latest: IPackageJson;
     [key: string]: IPackageJson;
   },
   time: {

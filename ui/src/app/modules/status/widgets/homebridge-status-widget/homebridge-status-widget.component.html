@@ -19,7 +19,7 @@
             [translate]="'status.homebridge.label_up_to_date'">
             Up To Date
           </span>
-          <a (click)="$plugin.upgradeHomebridge()" href="JavaScript:Void(0)" class="primary-text"
+          <a (click)="$plugin.upgradeHomebridge(homebridgePkg)" href="JavaScript:void(0)" class="primary-text"
             *ngIf="homebridgePkg.installedVersion && homebridgePkg.updateAvailable"
             [translate]="'status.homebridge.label_update_available'" [translateParams]="homebridgePkg"
             ngbTooltip="{{'plugins.button_upgrade' | translate}} Homebridge">
@@ -50,8 +50,10 @@
           <span class="grey-text" *ngIf="homebridgeStatus.status === 'up' && widget.hidePort"
             [translate]="'status.services.label_running'"
             [translateParams]="{port: homebridgeStatus.port}">Listening</span>
-          <span class="grey-text" *ngIf="homebridgeStatus.status !== 'up'"
-            [translate]="'status.services.label_not_running'">Not running</span>
+          <a routerLink="/logs" class="primary-text" *ngIf="homebridgeStatus.status !== 'up'">
+            {{ 'status.services.label_not_running' | translate}} -
+            {{ 'menu.tooltip_view_logs' | translate }}
+          </a>
         </div>
       </div>
     </div>

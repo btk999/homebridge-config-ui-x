@@ -3,6 +3,8 @@
 <div class="row">
   <div class="col-md-12">
     <form novalidate (ngSubmit)="onSubmit(form)" [formGroup]="form">
+      <i class="hb-npm-search-clear far fa-times-circle" *ngIf="form.controls['query'].value"
+        (click)="onClearSearch()"></i>
       <input type="text" class="hb-npm-search" tabindex="1"
         [placeholder]="'plugins.placeholder_search_plugin' | translate" formControlName="query">
     </form>
@@ -51,8 +53,8 @@
           rel="noopener noreferrer">
           NPM
         </a>
-        <a class="card-link" *ngIf="plugin.updateAvailable" (click)="$plugin.updatePlugin(plugin.name)"
-          placement="bottom" ngbTooltip="{{'plugins.tooltip_update_plugin_to' | translate:plugin }}" container="body"
+        <a class="card-link" *ngIf="plugin.updateAvailable" (click)="$plugin.updatePlugin(plugin)" placement="bottom"
+          ngbTooltip="{{'plugins.tooltip_update_plugin_to' | translate:plugin }}" container="body"
           [translate]="'plugins.button_update'">
           {{ 'plugins.button_update' | translate | uppercase }}
         </a>

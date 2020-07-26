@@ -16,9 +16,12 @@ import { ThermostatManageComponent } from './types/thermostat/thermostat.manage.
 import { OutletComponent } from './types/outlet/outlet.component';
 import { FanComponent } from './types/fan/fan.component';
 import { FanManageComponent } from './types/fan/fan.manage.component';
+import { Fanv2Component } from './types/fanv2/fanv2.component';
+import { Fanv2ManageComponent } from './types/fanv2/fanv2.manage.component';
 import { UnknownComponent } from './types/unknown/unknown.component';
 import { LightbulbComponent } from './types/lightbulb/lightbulb.component';
 import { LightbulbManageComponent } from './types/lightbulb/lightbulb.manage.component';
+import { LightsensorComponent } from './types/lightsensor/lightsensor.component';
 import { LockmechanismComponent } from './types/lockmechanism/lockmechanism.component';
 import { TemperaturesensorComponent } from './types/temperaturesensor/temperaturesensor.component';
 import { GaragedooropenerComponent } from './types/garagedooropener/garagedooropener.component';
@@ -36,6 +39,13 @@ import { SpeakerManageComponent } from './types/speaker/speaker.manage.component
 import { SecuritysystemComponent } from './types/securitysystem/securitysystem.component';
 import { SecuritysystemManageComponent } from './types/securitysystem/securitysystem.manage.component';
 import { LeaksensorComponent } from './types/leaksensor/leaksensor.component';
+import { ValveComponent } from './types/valve/valve.component';
+import { ValveManageComponent } from './types/valve/valve.manage.component';
+import { IrrigationSystemComponent } from './types/irrigationsystem/irrigationsystem.component';
+import { AirpurifierComponent } from './types/airpurifier/airpurifier.component';
+import { AirpurifierManageComponent } from './types/airpurifier/airpurifier.manage.component';
+import { HeaterCoolerComponent } from './types/heatercooler/heatercooler.component';
+import { HeaterCoolerManageComponent } from './types/heatercooler/heatercooler.manage.component';
 
 import { InfoModalComponent } from './info-modal/info-modal.component';
 
@@ -45,9 +55,13 @@ import { InfoModalComponent } from './info-modal/info-modal.component';
     ThermostatManageComponent,
     LightbulbManageComponent,
     FanManageComponent,
+    Fanv2ManageComponent,
     WindowcoveringManageComponent,
     SpeakerManageComponent,
     SecuritysystemManageComponent,
+    ValveManageComponent,
+    AirpurifierManageComponent,
+    HeaterCoolerManageComponent,
   ],
   declarations: [
     InfoModalComponent,
@@ -57,9 +71,12 @@ import { InfoModalComponent } from './info-modal/info-modal.component';
     OutletComponent,
     FanComponent,
     FanManageComponent,
+    Fanv2Component,
+    Fanv2ManageComponent,
     UnknownComponent,
     LightbulbComponent,
     LightbulbManageComponent,
+    LightsensorComponent,
     LockmechanismComponent,
     TemperaturesensorComponent,
     GaragedooropenerComponent,
@@ -77,6 +94,13 @@ import { InfoModalComponent } from './info-modal/info-modal.component';
     SecuritysystemComponent,
     SecuritysystemManageComponent,
     LeaksensorComponent,
+    ValveComponent,
+    ValveManageComponent,
+    IrrigationSystemComponent,
+    AirpurifierComponent,
+    AirpurifierManageComponent,
+    HeaterCoolerComponent,
+    HeaterCoolerManageComponent,
   ],
   imports: [
     CommonModule,
@@ -96,9 +120,12 @@ import { InfoModalComponent } from './info-modal/info-modal.component';
     OutletComponent,
     FanComponent,
     FanManageComponent,
+    Fanv2Component,
+    Fanv2ManageComponent,
     UnknownComponent,
     LightbulbComponent,
     LightbulbManageComponent,
+    LightsensorComponent,
     LockmechanismComponent,
     TemperaturesensorComponent,
     GaragedooropenerComponent,
@@ -116,6 +143,13 @@ import { InfoModalComponent } from './info-modal/info-modal.component';
     SecuritysystemComponent,
     SecuritysystemManageComponent,
     LeaksensorComponent,
+    ValveComponent,
+    ValveManageComponent,
+    IrrigationSystemComponent,
+    AirpurifierComponent,
+    AirpurifierManageComponent,
+    HeaterCoolerComponent,
+    HeaterCoolerManageComponent,
   ],
   providers: [
     AccessoriesService,

@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 import * as fs from 'fs-extra';
 import * as si from 'systeminformation';
+import * as semver from 'semver';
 
 import { HomebridgeServiceHelper } from '../hb-service';
 
@@ -130,13 +131,14 @@ export class LinuxInstaller {
   public async rebuild() {
     try {
       this.checkForRoot();
+      const targetNodeVersion = child_process.execSync('node -v').toString('utf8').trim();
 
       child_process.execSync('npm rebuild --unsafe-perm node-pty-prebuilt-multiarch', {
         cwd: process.env.UIX_BASE_PATH,
         stdio: 'inherit',
       });
 
-      this.hbService.logger(`Rebuilt modules in ${process.env.UIX_BASE_PATH} for Node.js ${process.version}.`, 'succeed');
+      this.hbService.logger(`Rebuilt modules in ${process.env.UIX_BASE_PATH} for Node.js ${targetNodeVersion}.`, 'succeed');
     } catch (e) {
       console.error(e.toString());
       this.hbService.logger(`ERROR: Failed Operation`, 'fail');
@@ -174,6 +176,141 @@ export class LinuxInstaller {
       }
     } catch (e) {
       return null;
+    }
+  }
+
+  /**
+   * Update Node.js
+   */
+  public async updateNodejs(job: { target: string, rebuild: boolean }) {
+    this.checkForRoot();
+
+    // check target path
+    const targetPath = path.dirname(path.dirname(process.execPath));
+
+    if (targetPath !== '/usr' && targetPath !== '/usr/local') {
+      this.hbService.logger(`Cannot update Node.js on your system. Non-standard installation path detected: ${targetPath}`, 'fail');
+      process.exit(1);
+    }
+
+    if (targetPath === '/usr' && await fs.pathExists('/etc/apt/sources.list.d/nodesource.list')) {
+      // update from nodesource
+      await this.updateNodeFromNodesource(job);
+    } else {
+      // update from tarball
+      await this.updateNodeFromTarball(job, targetPath);
+    }
+
+    // rebuild node modules if required
+    if (job.rebuild) {
+      this.hbService.logger(`Rebuilding for Node.js ${job.target}...`);
+      await this.rebuild();
+    }
+
+    // restart
+    if (await fs.pathExists(this.systemdServicePath)) {
+      await this.restart();
+    } else {
+      this.hbService.logger(`Please restart Homebridge for the changes to take effect.`, 'warn');
+    }
+  }
+
+  /**
+   * Update Node.js from the tarball archives
+   */
+  private async updateNodeFromTarball(job: { target: string, rebuild: boolean }, targetPath: string) {
+    // only glibc linux >=2.24 is supported
+    try {
+      const glibcVersion = parseFloat(child_process.execSync('getconf GNU_LIBC_VERSION 2>/dev/null').toString().split('glibc')[1].trim());
+      if (glibcVersion < 2.24) {
+        this.hbService.logger(`Your version of Linux does not meet the GLIBC version requirements to use this tool to upgrade Node.js. ` +
+          `Wanted: >=2.24. Installed: ${glibcVersion}`, 'fail');
+        process.exit(1);
+      }
+    } catch (e) {
+      const osInfo = await si.osInfo();
+      if (osInfo.distro === 'Alpine Linux') {
+        this.hbService.logger('Updating Node.js on Alpine Linux / Docker is not supported by this command.', 'fail');
+        this.hbService.logger('To update Node.js you should pull down the latest version of the oznu/homebridge Docker image.', 'fail');
+      } else {
+        this.hbService.logger('Updating Node.js using this tool is not supported on your version of Linux.');
+      }
+      process.exit(1);
+    }
+
+    const uname = child_process.execSync('uname -m').toString().trim();
+
+    let downloadUrl;
+    switch (uname) {
+      case 'x86_64':
+        downloadUrl = `https://nodejs.org/dist/${job.target}/node-${job.target}-linux-x64.tar.gz`;
+        break;
+      case 'aarch64':
+        downloadUrl = `https://nodejs.org/dist/${job.target}/node-${job.target}-linux-arm64.tar.gz`;
+        break;
+      case 'armv7l':
+        downloadUrl = `https://nodejs.org/dist/${job.target}/node-${job.target}-linux-armv7l.tar.gz`;
+        break;
+      case 'armv6l':
+        downloadUrl = `https://unofficial-builds.nodejs.org/download/release/${job.target}/node-${job.target}-linux-armv6l.tar.gz`;
+        break;
+      default:
+        this.hbService.logger(`Architecture not supported: ${process.arch}.`, 'fail');
+        process.exit(1);
+        break;
+    }
+
+    this.hbService.logger(`Target: ${targetPath}`);
+
+    try {
+      const archivePath = await this.hbService.downloadNodejs(downloadUrl);
+
+      const extractConfig = {
+        file: archivePath,
+        cwd: targetPath,
+        strip: 1,
+        preserveOwner: false,
+        unlink: true,
+      };
+
+      // extract
+      await this.hbService.extractNodejs(job.target, extractConfig);
+
+      // clean up
+      await fs.remove(archivePath);
+    } catch (e) {
+      this.hbService.logger(`Failed to update Node.js: ${e.message}`, 'fail');
+      process.exit(1);
+    }
+  }
+
+  /**
+   * Update the NodeSource repo and use it to update Node.js
+   */
+  private async updateNodeFromNodesource(job: { target: string, rebuild: boolean }) {
+    this.hbService.logger(`Updating from NodeSource...`);
+
+    try {
+      const majorVersion = semver.parse(job.target).major;
+      // update repo
+      child_process.execSync(`curl -sL https://deb.nodesource.com/setup_${majorVersion}.x | bash -`, {
+        stdio: 'inherit',
+      });
+
+      // remove current node.js if downgrading
+      if (majorVersion < semver.parse(process.version).major) {
+        child_process.execSync(`apt-get remove -y nodejs`, {
+          stdio: 'inherit',
+        });
+      }
+
+      // update node.js
+      child_process.execSync(`apt-get install -y nodejs`, {
+        stdio: 'inherit',
+      });
+    } catch (e) {
+      this.hbService.logger(`Failed to update Node.js: ${e.message}`, 'fail');
+      process.exit(1);
     }
   }
 
@@ -257,7 +394,7 @@ export class LinuxInstaller {
     try {
       const npmPath = child_process.execSync('which npm').toString('utf8').trim();
       const shutdownPath = child_process.execSync('which shutdown').toString('utf8').trim();
-      const sudoersEntry = `${this.hbService.asUser}    ALL=(ALL) NOPASSWD:SETENV: ${shutdownPath}, ${npmPath}`;
+      const sudoersEntry = `${this.hbService.asUser}    ALL=(ALL) NOPASSWD:SETENV: ${shutdownPath}, ${npmPath}, /usr/bin/npm, /usr/local/bin/npm`;
 
       // check if the sudoers file already contains the entry
       const sudoers = fs.readFileSync('/etc/sudoers', 'utf-8');
